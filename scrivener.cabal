@@ -2,24 +2,39 @@ name:                scrivener
 version:             0.1.0.0
 -- synopsis:
 -- description:
-homepage:            https://github.com/githubuser/scrivener
+homepage:            https://github.com/doublecrowngaming/scrivener
 license:             BSD3
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2019 Author name here
-category:            Acme
+author:              Jesse Kempf
+maintainer:          jesse.kempf@doublecrown.co
+copyright:           2019 Double Crown Gaming Co.
+category:            System
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
-tested-with:         GHC == 7.10.2
+tested-with:         GHC == 8.6.5
 
 library
   default-language:    Haskell2010
   ghc-options:         -Wall
   hs-source-dirs:      src
-  exposed-modules:     Lib
+  exposed-modules:     Data.Conduit.Buffered
+                     , Data.Conduit.LogDNA
   build-depends:       base >= 4.7 && < 5
+                     , aeson
+                     , async
+                     , bytestring
+                     , conduit
+                     , conduit-extra
+                     , hostname
+                     , http-api-data
+                     , lifted-base
+                     , mtl
+                     , req
+                     , stm
+                     , stm-conduit
+                     , text
+                     , time
 
 executable scrivener
   default-language:    Haskell2010
@@ -27,7 +42,12 @@ executable scrivener
   hs-source-dirs:      app
   main-is:             Main.hs
   build-depends:       base
+                     , conduit
+                     , conduit-extra
+                     , optparse-applicative
                      , scrivener
+                     , stm
+                     , stm-chans
 
 test-suite spec
   default-language:    Haskell2010
@@ -42,4 +62,4 @@ test-suite spec
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/scrivener
+  location: https://github.com/doublecrowngaming/scrivener
