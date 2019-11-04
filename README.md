@@ -1,2 +1,5 @@
 # scrivener
-Piper for sending stdout to SaaS logging services
+
+[![Build Status](https://travis-ci.org/githubuser/scrivener.png)](https://travis-ci.org/githubuser/scrivener)
+
+TODO Description.
