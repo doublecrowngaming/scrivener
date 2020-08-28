@@ -1,5 +1,4 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE OverloadedStrings          #-}
 
 module Data.Conduit.LogDNA (
@@ -13,12 +12,10 @@ module Data.Conduit.LogDNA (
 
 import           Control.Monad            (unless, void)
 import           Control.Monad.IO.Class   (MonadIO (..))
-import           Control.Monad.State      (get, modify, put)
 import           Data.Aeson               (ToJSON (..), object, (.=))
 import           Data.ByteString          (ByteString)
 import           Data.Conduit
 import           Data.Conduit.Combinators (mapM)
-import           Data.Conduit.Lift        (evalStateC)
 import           Data.Text                (Text, pack)
 import           Data.Text.Encoding       (decodeUtf8)
 import           Data.Time.Clock          (UTCTime, getCurrentTime)
@@ -50,24 +47,17 @@ logLine appName env =
   mapM $ \l -> liftIO (LogLine <$> getCurrentTime <*> pure appName <*> pure env <*> pure l)
 
 
-logDNA :: MonadIO io => IngestToken -> Hostname -> ConduitT (Flush LogLine) o io ()
+logDNA :: MonadIO io => IngestToken -> Hostname -> ConduitT [LogLine] o io ()
 logDNA ingestToken hostname =
-  evalStateC [] $
-    awaitForever $ \case
-      Chunk line -> modify (line :)
-      Flush -> do
-        logLines <- get
+  awaitForever $ \logLines ->
+    unless (null logLines) $ do
+      now <- liftIO getCurrentTime
 
-        unless (null logLines) $ do
-          now <- liftIO getCurrentTime
-
-          void . runReq defaultHttpConfig $
-            req POST (https "logs.logdna.com" /: "logs" /: "ingest")
-              (ReqBodyJson $ object ["lines" .= logLines])
-              ignoreResponse
-              (options <> "now" =: utcTimeToPOSIXSeconds now)
-
-        put []
+      void . runReq defaultHttpConfig $
+        req POST (https "logs.logdna.com" /: "logs" /: "ingest")
+          (ReqBodyJson $ object ["lines" .= logLines])
+          ignoreResponse
+          (options <> "now" =: utcTimeToPOSIXSeconds now)
 
   where
     options =

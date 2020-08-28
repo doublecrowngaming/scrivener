@@ -1,5 +1,5 @@
 name:                scrivener
-version:             0.1.0.0
+version:             0.1.1.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/doublecrowngaming/scrivener
@@ -19,6 +19,7 @@ library
   ghc-options:         -Wall
   hs-source-dirs:      src
   exposed-modules:     Data.Conduit.Buffered
+                     , Data.Conduit.Accumulate
                      , Data.Conduit.LogDNA
   build-depends:       base >= 4.7 && < 5
                      , aeson
@@ -55,10 +56,16 @@ test-suite spec
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
+  other-modules:       Data.Conduit.BufferedSpec
+                     , Data.Conduit.AccumulateSpec
   build-depends:       base
                      , scrivener
+                     , conduit
                      , hspec
                      , QuickCheck
+                     , stm
+                     , stm-chans
+                     , stm-conduit
 
 source-repository head
   type:     git

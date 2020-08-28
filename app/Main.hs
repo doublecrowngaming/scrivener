@@ -7,6 +7,7 @@ import           Control.Concurrent            (forkIO)
 import           Control.Concurrent.STM.TMChan (newTMChanIO)
 import           Control.Monad                 (void)
 import           Data.Conduit
+import           Data.Conduit.Accumulate       (accumulate)
 import           Data.Conduit.Binary           (lines)
 import           Data.Conduit.Buffered
 import           Data.Conduit.Combinators      (stdin)
@@ -45,7 +46,7 @@ main = do
   void . forkIO $ runConduitRes (stdin .| lines .| logLine appName env .| bufferSink chan)
 
   -- Start output emitter
-  runConduitRes (bufferSource chan .| logDNA token hostname)
+  runConduitRes (bufferSource chan .| accumulate .| logDNA token hostname)
 
   where
     p = prefs (showHelpOnEmpty <> showHelpOnError)
