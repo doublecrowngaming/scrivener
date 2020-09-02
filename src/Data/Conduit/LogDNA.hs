@@ -21,6 +21,8 @@ import           Data.Text.Encoding       (decodeUtf8)
 import           Data.Time.Clock          (UTCTime, getCurrentTime)
 import           Data.Time.Clock.POSIX    (utcTimeToPOSIXSeconds)
 import           Network.HostName         (getHostName)
+import           Network.HTTP.Client      (defaultManagerSettings,
+                                           managerConnCount, newManager)
 import           Network.HTTP.Req
 import           Prelude                  hiding (mapM)
 import           Web.HttpApiData          (ToHttpApiData)
@@ -48,12 +50,15 @@ logLine appName env =
 
 
 logDNA :: MonadIO io => IngestToken -> Hostname -> ConduitT [LogLine] o io ()
-logDNA ingestToken hostname =
+logDNA ingestToken hostname = do
+  manager <- liftIO $ newManager defaultManagerSettings { managerConnCount = 1 }
+  let httpConfig = defaultHttpConfig { httpConfigAltManager = Just manager }
+
   awaitForever $ \logLines ->
     unless (null logLines) $ do
       now <- liftIO getCurrentTime
 
-      void . runReq defaultHttpConfig $
+      void . runReq httpConfig $
         req POST (https "logs.logdna.com" /: "logs" /: "ingest")
           (ReqBodyJson $ object ["lines" .= logLines])
           ignoreResponse
@@ -63,7 +68,6 @@ logDNA ingestToken hostname =
     options =
       "hostname" =: hostname
         <> "apikey" `header` unIngestToken ingestToken
-
 
 getHostname :: MonadIO io => io Hostname
 getHostname = Hostname . pack <$> liftIO getHostName

@@ -1,5 +1,5 @@
 name:                scrivener
-version:             0.1.1.0
+version:             0.1.2.0
 -- synopsis:
 -- description:
 homepage:            https://github.com/doublecrowngaming/scrivener
@@ -29,6 +29,7 @@ library
                      , conduit-extra
                      , hostname
                      , http-api-data
+                     , http-client
                      , lifted-base
                      , mtl
                      , req
