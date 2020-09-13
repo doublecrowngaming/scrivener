@@ -21,8 +21,8 @@ import           Data.Text.Encoding       (decodeUtf8)
 import           Data.Time.Clock          (UTCTime, getCurrentTime)
 import           Data.Time.Clock.POSIX    (utcTimeToPOSIXSeconds)
 import           Network.HostName         (getHostName)
-import           Network.HTTP.Client      (defaultManagerSettings,
-                                           managerConnCount, newManager)
+import           Network.HTTP.Client      (managerConnCount, newManager)
+import           Network.HTTP.Client.TLS  (tlsManagerSettings)
 import           Network.HTTP.Req
 import           Prelude                  hiding (mapM)
 import           Web.HttpApiData          (ToHttpApiData)
@@ -51,7 +51,7 @@ logLine appName env =
 
 logDNA :: MonadIO io => IngestToken -> Hostname -> ConduitT [LogLine] o io ()
 logDNA ingestToken hostname = do
-  manager <- liftIO $ newManager defaultManagerSettings { managerConnCount = 1 }
+  manager <- liftIO $ newManager tlsManagerSettings { managerConnCount = 1 }
   let httpConfig = defaultHttpConfig { httpConfigAltManager = Just manager }
 
   awaitForever $ \logLines ->

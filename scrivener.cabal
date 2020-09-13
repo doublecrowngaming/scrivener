@@ -30,6 +30,7 @@ library
                      , hostname
                      , http-api-data
                      , http-client
+                     , http-client-tls
                      , lifted-base
                      , mtl
                      , req
